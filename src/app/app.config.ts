@@ -14,5 +14,5 @@ export const appConfig: ApplicationConfig = {
     provideFirebaseApp(() => initializeApp(environment.firebase)),
 
     provideDatabase(() => getDatabase()),
-  ]
+  ],
 };

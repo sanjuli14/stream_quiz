@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "mkdir -p src/environments && echo \"$ENVIRONMENT_FILE_CONTENT\" > src/environments/environment.ts && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:stream_quiz": "node dist/stream_quiz/server/server.mjs"
