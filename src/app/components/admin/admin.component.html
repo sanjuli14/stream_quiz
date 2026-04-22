@@ -1,0 +1,186 @@
+<div class="admin-container">
+  <div class="admin-header">
+    <div class="admin-logo">
+      <div class="admin-logo-icon">
+        <svg width="28" height="28" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="admin-title">Quiz Stream</h1>
+        <p class="admin-subtitle">Panel de Control</p>
+      </div>
+    </div>
+    <div class="admin-connection">
+      <div class="admin-connection-dot"></div>
+      <span class="admin-connection-text">Conectado</span>
+    </div>
+  </div>
+
+  <div class="admin-grid">
+    <!-- Panel de Edición -->
+    <div>
+      <!-- Pregunta -->
+      <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <label class="admin-card-title">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Pregunta
+        </label>
+        <textarea [(ngModel)]="nuevaPregunta.texto" rows="3" class="admin-textarea"
+          placeholder="Escribe tu pregunta aquí..."></textarea>
+      </div>
+
+      <!-- Tiempo -->
+      <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <label class="admin-card-title">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          Tiempo para Responder
+        </label>
+        <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem;">
+          <input type="number" [(ngModel)]="tiempoRespuesta" min="5" max="300"
+            style="width: 6rem; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 0.5rem; padding: 0.5rem; color: white; text-align: center; font-size: 1.25rem; font-weight: 700;">
+          <span style="color: #94a3b8;">segundos</span>
+        </div>
+        <p class="admin-hint">Mínimo 5 segundos, máximo 5 minutos</p>
+      </div>
+
+      <!-- Opciones -->
+      <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <label class="admin-card-title">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          Opciones de Respuesta
+        </label>
+        <div style="margin-top: 1rem;">
+          @for (opt of [0,1,2,3]; track $index) {
+            <div class="admin-option-row">
+              <button type="button" (click)="nuevaPregunta.correcta = $index"
+                [class]="nuevaPregunta.correcta === $index ? 'admin-option-btn-correct' : 'admin-option-btn-default'"
+                class="admin-option-btn">
+                {{['A','B','C','D'][$index]}}
+              </button>
+              <input type="text" [(ngModel)]="nuevaPregunta.opciones[$index]"
+                [class]="nuevaPregunta.correcta === $index ? 'admin-option-input admin-option-input-correct' : 'admin-option-input'"
+                placeholder="Opción {{['A','B','C','D'][$index]}}">
+              @if (nuevaPregunta.correcta === $index) {
+                <div class="admin-check">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+              }
+            </div>
+          }
+        </div>
+        <p class="admin-hint">Haz clic en la letra (A, B, C, D) para marcar la respuesta correcta</p>
+      </div>
+
+      <!-- Botones de Control -->
+      <div class="admin-btn-grid">
+        <button (click)="enviar()" class="admin-btn-primary">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Mostrar Pregunta
+        </button>
+
+        <button (click)="revelar()" [disabled]="!nuevaPregunta.texto" class="admin-btn-secondary">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          Revelar Respuesta
+        </button>
+      </div>
+
+      <button (click)="limpiar()" class="admin-btn-clear">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+        Limpiar Todo
+      </button>
+    </div>
+
+    <!-- Preview del Overlay -->
+    <div>
+      <div class="admin-preview-header">
+        <h2 class="admin-preview-title">
+          <svg width="24" height="24" fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          Vista Previa
+        </h2>
+        <span class="admin-preview-badge">Así se verá en stream</span>
+      </div>
+
+      <!-- Simulación del Overlay -->
+      <div class="admin-preview-frame">
+        <div class="admin-preview-bg"></div>
+
+        <!-- Timer display -->
+        @if (tiempoRestante > 0 && !nuevaPregunta.mostrarRespuesta) {
+          <div style="position: absolute; top: 1rem; right: 1rem; background: rgba(239, 68, 68, 0.9); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 1.5rem; font-weight: 700; z-index: 30;">
+            {{getFormatoTiempo()}}
+          </div>
+        }
+
+        <!-- Simulación Webcam Streamer -->
+        <div class="admin-preview-webcam">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          <span>Tu Webcam</span>
+        </div>
+
+        <!-- Pregunta -->
+        @if (nuevaPregunta.texto) {
+          <div class="admin-preview-question">
+            <p>{{nuevaPregunta.texto}}</p>
+          </div>
+        } @else {
+          <div class="admin-preview-question-empty">
+            <p>La pregunta aparecerá aquí</p>
+          </div>
+        }
+
+        <!-- Opciones -->
+        @if (tieneOpciones()) {
+          <div class="admin-preview-options">
+            @for (opt of nuevaPregunta.opciones; track $index) {
+              @if (opt) {
+                <div [class]="nuevaPregunta.correcta === $index ? 'admin-preview-option admin-preview-option-correct' : 'admin-preview-option'">
+                  <span class="admin-preview-option-letter">{{ ['A', 'B', 'C', 'D'][$index] }}</span>
+                  <span class="admin-preview-option-text">{{ opt }}</span>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Instrucciones -->
+      <div class="admin-instructions">
+        <h3>
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Cómo usar
+        </h3>
+        <ul>
+          <li>Escribe la pregunta y las 4 opciones</li>
+          <li>Haz clic en la letra (A, B, C, D) para marcar la correcta</li>
+          <li>Presiona "Mostrar Pregunta" para enviar al overlay</li>
+          <li>Cuando quieras revelar, presiona "Revelar Respuesta"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
