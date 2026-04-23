@@ -9,6 +9,15 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
+/* Transparent background for OBS Browser Source */
+body.overlay-mode {
+  background: transparent !important;
+}
+
+body.overlay-mode .overlay-container {
+  background: transparent !important;
+}
+
 /* ===== ADMIN STYLES ===== */
 .admin-container {
   min-height: 100vh;
@@ -473,11 +482,16 @@ html, body {
   background: transparent;
 }
 
+/* Optional gradient backgrounds - comment out for full transparency in OBS */
 .overlay-gradient {
   position: absolute;
   inset: 0;
   background: linear-gradient(to top, #020617, rgba(15, 23, 42, 0.8), transparent);
   pointer-events: none;
+}
+
+body.overlay-mode .overlay-gradient {
+  display: none;
 }
 
 .overlay-gradient-bottom {
@@ -488,6 +502,10 @@ html, body {
   height: 50%;
   background: linear-gradient(to top, rgba(88, 28, 135, 0.2), transparent);
   pointer-events: none;
+}
+
+body.overlay-mode .overlay-gradient-bottom {
+  display: none;
 }
 
 /* Pregunta */
@@ -550,8 +568,8 @@ html, body {
 /* Webcam area */
 .overlay-webcam-container {
   position: absolute;
-  bottom: 1.5rem;
-  left: 1.5rem;
+  top: 1.5rem;
+  right: 1.5rem;
   z-index: 10;
 }
 
@@ -567,15 +585,18 @@ html, body {
   filter: blur(4px);
 }
 
+body.overlay-mode .overlay-webcam-glow {
+  display: none;
+}
+
 .overlay-webcam {
   position: relative;
-  width: 16rem;
-  height: 12rem;
-  background: rgba(15, 23, 42, 0.5);
+  width: 24rem;
+  height: 18rem;
+  background: transparent !important;
   border-radius: 0.75rem;
-  border: 2px solid rgba(168, 85, 247, 0.4);
+  border: 3px solid rgba(168, 85, 247, 0.8);
   overflow: hidden;
-  backdrop-filter: blur(5px);
 }
 
 .overlay-webcam-corner {
@@ -645,6 +666,12 @@ html, body {
 }
 
 .overlay-webcam-placeholder {
+  /* Oculto por defecto - el streamer pondrá su cámara real debajo en OBS */
+  display: none;
+}
+
+/* Si quieres ver el placeholder en el admin/preview, descomenta esto:
+.overlay-webcam-placeholder {
   position: absolute;
   inset: 0;
   display: flex;
@@ -664,6 +691,7 @@ html, body {
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
+*/
 
 .overlay-webcam-label {
   position: absolute;
