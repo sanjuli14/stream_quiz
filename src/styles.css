@@ -515,7 +515,7 @@ body.overlay-mode .overlay-gradient-bottom {
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  margin-top: 50px;
+  margin-top: 10%;
   max-width: 64rem;
   padding: 0 2rem;
   z-index: 20;
