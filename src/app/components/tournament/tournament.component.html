@@ -1,0 +1,210 @@
+<div class="tournament-overlay-container">
+  @if (tournament?.isActive || tournament?.currentRound === 'complete') {
+    <!-- Header -->
+    <div class="tournament-header">
+      <h1>🏆 TORNEO</h1>
+      @if (getWinner()) {
+        <div class="champion-banner">
+          <span class="crown">👑</span>
+          <span class="champion-name">{{ getWinner()?.name }}</span>
+          <span class="champion-title">CAMPEÓN</span>
+        </div>
+      }
+    </div>
+
+    <!-- Bracket Grid - Vertical Layout -->
+    <div class="bracket-grid" [class.complete]="tournament?.currentRound === 'complete'">
+      
+      <!-- 4TOS DE FINAL -->
+      @if (getMatchesByRound('quarter').length > 0) {
+        <div class="bracket-round">
+          <div class="round-title">4TOS</div>
+          <div class="round-matches">
+            @for (match of getMatchesByRound('quarter'); track match.id) {
+              <div class="bracket-match" [class.complete]="match.isComplete">
+                <div class="match-player" [class.winner]="match.winnerId === match.participant1Id" [class.loser]="match.isComplete && match.winnerId !== match.participant1Id">
+                  @if (getParticipant(match.participant1Id); as p1) {
+                    <span class="player-name">{{ p1.name }}</span>
+                    @if (match.winnerId === match.participant1Id) {
+                      <span class="winner-badge">✓</span>
+                    }
+                  } @else {
+                    <span class="player-empty">-</span>
+                  }
+                </div>
+                <div class="match-divider"></div>
+                <div class="match-player" [class.winner]="match.winnerId === match.participant2Id" [class.loser]="match.isComplete && match.winnerId !== match.participant2Id">
+                  @if (getParticipant(match.participant2Id); as p2) {
+                    <span class="player-name">{{ p2.name }}</span>
+                    @if (match.winnerId === match.participant2Id) {
+                      <span class="winner-badge">✓</span>
+                    }
+                  } @else {
+                    <span class="player-empty">-</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Conector -->
+      @if (getMatchesByRound('quarter').length > 0 && getMatchesByRound('semi').length > 0) {
+        <div class="bracket-connector"></div>
+      }
+
+      <!-- SEMIFINALES -->
+      @if (getMatchesByRound('semi').length > 0) {
+        <div class="bracket-round">
+          <div class="round-title">SEMIS</div>
+          <div class="round-matches">
+            @for (match of getMatchesByRound('semi'); track match.id) {
+              <div class="bracket-match" [class.complete]="match.isComplete">
+                <div class="match-player" [class.winner]="match.winnerId === match.participant1Id" [class.loser]="match.isComplete && match.winnerId !== match.participant1Id">
+                  @if (getParticipant(match.participant1Id); as p1) {
+                    <span class="player-name">{{ p1.name }}</span>
+                    @if (match.winnerId === match.participant1Id) {
+                      <span class="winner-badge">✓</span>
+                    }
+                  } @else {
+                    <span class="player-empty">TBD</span>
+                  }
+                </div>
+                <div class="match-divider"></div>
+                <div class="match-player" [class.winner]="match.winnerId === match.participant2Id" [class.loser]="match.isComplete && match.winnerId !== match.participant2Id">
+                  @if (getParticipant(match.participant2Id); as p2) {
+                    <span class="player-name">{{ p2.name }}</span>
+                    @if (match.winnerId === match.participant2Id) {
+                      <span class="winner-badge">✓</span>
+                    }
+                  } @else {
+                    <span class="player-empty">TBD</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Conector -->
+      @if (getMatchesByRound('semi').length > 0 && (getMatchesByRound('final').length > 0 || getMatchesByRound('third_place').length > 0)) {
+        <div class="bracket-connector final-connector"></div>
+      }
+
+      <!-- FINAL Y 3ER LUGAR -->
+      <div class="finals-column">
+        <!-- 3ER LUGAR -->
+        @if (getMatchesByRound('third_place').length > 0 && tournament?.hasThirdPlace) {
+          <div class="bracket-round third-place">
+            <div class="round-title">🥉 3ER LUGAR 🥉</div>
+            <div class="round-matches">
+              @for (match of getMatchesByRound('third_place'); track match.id) {
+                <div class="bracket-match" [class.complete]="match.isComplete">
+                  <div class="match-player" [class.winner]="match.winnerId === match.participant1Id">
+                    @if (getParticipant(match.participant1Id); as p1) {
+                      <span class="player-name">{{ p1.name }}</span>
+                      @if (match.winnerId === match.participant1Id) {
+                        <span class="winner-badge">🥉</span>
+                      }
+                    } @else {
+                      <span class="player-empty">-</span>
+                    }
+                  </div>
+                  <div class="match-divider"></div>
+                  <div class="match-player" [class.winner]="match.winnerId === match.participant2Id">
+                    @if (getParticipant(match.participant2Id); as p2) {
+                      <span class="player-name">{{ p2.name }}</span>
+                      @if (match.winnerId === match.participant2Id) {
+                        <span class="winner-badge">🥉</span>
+                      }
+                    } @else {
+                      <span class="player-empty">-</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- FINAL -->
+        @if (getMatchesByRound('final').length > 0) {
+          <div class="bracket-round final">
+            <div class="round-title">⭐ FINAL ⭐</div>
+            <div class="round-matches">
+              @for (match of getMatchesByRound('final'); track match.id) {
+                <div class="bracket-match final-match" [class.complete]="match.isComplete">
+                  <div class="match-player" [class.winner]="match.winnerId === match.participant1Id">
+                    @if (getParticipant(match.participant1Id); as p1) {
+                      <span class="player-name">{{ p1.name }}</span>
+                      @if (match.winnerId === match.participant1Id) {
+                        <span class="winner-badge">🏆</span>
+                      }
+                    } @else {
+                      <span class="player-empty">-</span>
+                    }
+                  </div>
+                  <div class="match-divider"></div>
+                  <div class="match-player" [class.winner]="match.winnerId === match.participant2Id">
+                    @if (getParticipant(match.participant2Id); as p2) {
+                      <span class="player-name">{{ p2.name }}</span>
+                      @if (match.winnerId === match.participant2Id) {
+                        <span class="winner-badge">🏆</span>
+                      }
+                    } @else {
+                      <span class="player-empty">-</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Podio Final - TOP 4 -->
+    @if (tournament?.currentRound === 'complete') {
+      <div class="podium">
+        <div class="podium-place second">
+          <div class="podium-medal">🥈</div>
+          @if (getSecondPlace()) {
+            <div class="podium-name">{{ getSecondPlace()?.name }}</div>
+            <div class="podium-label">2DO LUGAR</div>
+          }
+        </div>
+        <div class="podium-place first">
+          <div class="podium-medal">🥇</div>
+          @if (getWinner()) {
+            <div class="podium-name">{{ getWinner()?.name }}</div>
+            <div class="podium-label">CAMPEÓN</div>
+          }
+        </div>
+        <div class="podium-place third">
+          <div class="podium-medal">🥉</div>
+          @if (getThirdPlace()) {
+            <div class="podium-name">{{ getThirdPlace()?.name }}</div>
+            <div class="podium-label">3ER LUGAR</div>
+          }
+        </div>
+        <div class="podium-place fourth">
+          <div class="podium-medal">🏅</div>
+          @if (getFourthPlace()) {
+            <div class="podium-name">{{ getFourthPlace()?.name }}</div>
+            <div class="podium-label">4TO LUGAR</div>
+          }
+        </div>
+      </div>
+    }
+
+  } @else {
+    <!-- Estado vacío -->
+    <div class="tournament-empty">
+      <div class="empty-icon">🏆</div>
+      <h2>Esperando inicio del torneo...</h2>
+      <p>Agrega participantes en el panel de administración</p>
+    </div>
+  }
+</div>

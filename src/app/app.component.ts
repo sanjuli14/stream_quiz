@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -12,16 +12,19 @@ import { CommonModule } from '@angular/common';
 export class AppComponent {
   title = 'stream_quiz';
   router = inject(Router);
+  doc = inject(DOCUMENT);
   isOverlay = false;
 
   ngOnInit() {
     this.router.events.subscribe(() => {
-      this.isOverlay = this.router.url === '' || this.router.url === '/';
-      
+      const url = this.router.url;
+      // Modo overlay para página principal y bracket
+      this.isOverlay = url === '' || url === '/' || url === '/bracket';
+
       if (this.isOverlay) {
-        document.body.classList.add('overlay-mode');
+        this.doc.body.classList.add('overlay-mode');
       } else {
-        document.body.classList.remove('overlay-mode');
+        this.doc.body.classList.remove('overlay-mode');
       }
     });
   }

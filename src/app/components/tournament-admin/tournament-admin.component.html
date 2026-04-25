@@ -1,0 +1,248 @@
+<div class="tournament-admin-container">
+  <header class="tournament-admin-header">
+    <h1>🏆 Admin del Torneo</h1>
+    <div class="tournament-status" [class.active]="tournament?.isActive">
+      {{ tournament?.isActive ? '🟢 En curso' : '⚪ No iniciado' }}
+    </div>
+  </header>
+
+  <!-- Mensajes -->
+  @if (errorMessage) {
+    <div class="alert alert-error">{{ errorMessage }}</div>
+  }
+  @if (successMessage) {
+    <div class="alert alert-success">{{ successMessage }}</div>
+  }
+
+  <div class="tournament-admin-grid">
+    <!-- Panel de Participantes -->
+    <div class="admin-card">
+      <h2>👥 Participantes ({{ participants.length }}/8)</h2>
+      
+      @if (!tournament?.isActive) {
+        <div class="add-participant">
+          <input 
+            type="text" 
+            [(ngModel)]="newParticipantName" 
+            placeholder="Nombre del participante"
+            (keyup.enter)="agregarParticipante()"
+          />
+          <input 
+            type="text" 
+            [(ngModel)]="newParticipantAvatar" 
+            placeholder="URL avatar (opcional)"
+          />
+          <button 
+            (click)="agregarParticipante()" 
+            [disabled]="isLoading || !newParticipantName.trim() || participants.length >= 8"
+            class="btn-primary"
+          >
+            Agregar
+          </button>
+        </div>
+      }
+
+      <!-- Lista de participantes -->
+      <div class="participants-list">
+        @for (p of participants; track p.id) {
+          <div class="participant-item" [class.eliminated]="p.eliminated">
+            <span class="participant-number">{{ $index + 1 }}</span>
+            @if (p.avatar) {
+              <img [src]="p.avatar" alt="" class="participant-avatar">
+            }
+            <span class="participant-name">{{ p.name }}</span>
+            @if (p.eliminated) {
+              <span class="participant-badge eliminated">❌ Eliminado</span>
+            }
+            @if (!p.eliminated && tournament?.isActive) {
+              <button
+                (click)="eliminarManualmente(p.id)"
+                class="btn-delete"
+                [disabled]="isLoading"
+                title="Eliminar del torneo"
+              >
+                ❌
+              </button>
+            }
+            @if (!tournament?.isActive) {
+              <button
+                (click)="eliminarParticipante(p.id)"
+                class="btn-delete"
+                [disabled]="isLoading"
+              >
+                🗑️
+              </button>
+            }
+          </div>
+        }
+      </div>
+      
+      @if (participants.length === 0) {
+        <p class="empty-message">No hay participantes aún</p>
+      }
+
+      @if (canStartTournament()) {
+        <div class="tournament-config">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="hasThirdPlace">
+            Incluir partido por 3er lugar
+          </label>
+          <button 
+            (click)="iniciarTorneo()" 
+            [disabled]="isLoading"
+            class="btn-start"
+          >
+            🚀 Iniciar Torneo
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Panel del Bracket -->
+    <div class="admin-card bracket-admin">
+      <h2>📊 {{ getCurrentRoundLabel() }}</h2>
+
+      @if (tournament?.isActive) {
+        <!-- Ronda actual -->
+        <div class="current-round">
+          <h3>Enfrentamientos {{ getCurrentRoundLabel() }}</h3>
+          
+          @for (match of getMatchesByRound(tournament?.currentRound || ''); track match.id) {
+            <div class="match-admin-card" [class.complete]="match.isComplete">
+              <div class="match-participants">
+                <!-- Participante 1 -->
+                @if (match.participant1Id) {
+                  <div class="match-player" [class.winner]="match.winnerId === match.participant1Id">
+                    @if (getParticipant(match.participant1Id); as p1) {
+                      <span>{{ p1.name }}</span>
+                      @if (!match.isComplete) {
+                        <button 
+                          (click)="registrarGanador(match.id, match.participant1Id!)"
+                          [disabled]="isLoading"
+                          class="btn-win"
+                        >
+                          ✅ Ganador
+                        </button>
+                      }
+                    }
+                  </div>
+                } @else {
+                  <div class="match-player empty">Por definir</div>
+                }
+
+                <div class="match-vs">VS</div>
+
+                <!-- Participante 2 -->
+                @if (match.participant2Id) {
+                  <div class="match-player" [class.winner]="match.winnerId === match.participant2Id">
+                    @if (getParticipant(match.participant2Id); as p2) {
+                      <span>{{ p2.name }}</span>
+                      @if (!match.isComplete) {
+                        <button 
+                          (click)="registrarGanador(match.id, match.participant2Id!)"
+                          [disabled]="isLoading"
+                          class="btn-win"
+                        >
+                          ✅ Ganador
+                        </button>
+                      }
+                    }
+                  </div>
+                } @else {
+                  <div class="match-player empty">Por definir</div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Partido 3er Lugar (si existe y no está completo) -->
+        @if (getMatchesByRound('third_place').length > 0 && !getMatchesByRound('third_place')[0].isComplete) {
+          <div class="third-place-round">
+            <h3>🥉 Partido 3er Lugar</h3>
+            @for (match of getMatchesByRound('third_place'); track match.id) {
+              <div class="match-admin-card" [class.complete]="match.isComplete">
+                <div class="match-participants">
+                  @if (match.participant1Id) {
+                    <div class="match-player" [class.winner]="match.winnerId === match.participant1Id">
+                      @if (getParticipant(match.participant1Id); as p1) {
+                        <span>{{ p1.name }}</span>
+                        @if (!match.isComplete) {
+                          <button 
+                            (click)="registrarGanador(match.id, match.participant1Id!)"
+                            [disabled]="isLoading"
+                            class="btn-win"
+                          >
+                            ✅ Ganador 3ro
+                          </button>
+                        }
+                      }
+                    </div>
+                  } @else {
+                    <div class="match-player empty">Por definir</div>
+                  }
+
+                  <div class="match-vs">VS</div>
+
+                  @if (match.participant2Id) {
+                    <div class="match-player" [class.winner]="match.winnerId === match.participant2Id">
+                      @if (getParticipant(match.participant2Id); as p2) {
+                        <span>{{ p2.name }}</span>
+                        @if (!match.isComplete) {
+                          <button 
+                            (click)="registrarGanador(match.id, match.participant2Id!)"
+                            [disabled]="isLoading"
+                            class="btn-win"
+                          >
+                            ✅ Ganador 3ro
+                          </button>
+                        }
+                      }
+                    </div>
+                  } @else {
+                    <div class="match-player empty">Por definir</div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Controles -->
+        <div class="bracket-controls">
+          @if (tournament?.currentRound !== 'complete') {
+            <button
+              (click)="avanzarRonda()"
+              [disabled]="isLoading"
+              class="btn-next"
+            >
+              ⏭️ Siguiente Ronda
+            </button>
+          }
+          <button
+            (click)="reiniciarTorneo()"
+            [disabled]="isLoading"
+            class="btn-danger"
+          >
+            🔄 Reiniciar Todo
+          </button>
+        </div>
+      } @else {
+        <p class="empty-message">
+          El torneo no ha iniciado. Agrega participantes e inicia el torneo.
+        </p>
+      }
+    </div>
+  </div>
+
+  <!-- Vista previa -->
+  @if (tournament?.isActive) {
+    <div class="preview-section">
+      <h3>🔗 Vista para OBS</h3>
+      <p>URL: <code>{{ getBracketUrl() }}</code></p>
+      <a [routerLink]="['/bracket']" target="_blank" class="btn-preview">
+        Abrir Vista Bracket
+      </a>
+    </div>
+  }
+</div>
